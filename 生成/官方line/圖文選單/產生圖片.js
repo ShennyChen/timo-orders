@@ -83,7 +83,7 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
 .div.v .bar{width:7px}
 `;
 
-const sz=t=>{const n=[...t].length;return n<=2?248:n===3?196:156};
+const sz=t=>160;   // 五格一律同字級，不因字數少就放大
 const cell=(t,img,x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
   <div class="mid">${ORN('var(--gold)',{long:false,scale:1.05})}
