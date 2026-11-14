@@ -58,6 +58,7 @@ function writeOrderItems_(rowIndex, items) {
       return {
         product: String(x.product == null ? '' : x.product),
         quantity: Number(x.quantity) || 0,
+        price: Number(x.price) || 0,
         amount: Number(x.amount) || 0
       };
     });
