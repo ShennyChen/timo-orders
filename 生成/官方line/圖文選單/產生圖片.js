@@ -1,6 +1,9 @@
 const {chromium}=require('playwright'); const fs=require('fs'); const path=require('path');
 const {execSync}=require('child_process');
-const DIR=__dirname, OUT='/home/user/timo-orders/生成/官方line/圖文選單';
+const DIR=__dirname;
+const FONT=process.argv[2]||'LXGW WenKai TC';
+const OUT=process.argv[3]||'/home/user/timo-orders/生成/官方line/圖文選單';
+const SLICE=process.argv[4]!=='no';
 const b64=n=>'data:image/jpeg;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'utf8');
 
 const W=2500,H=1686,CW=833,CH=843,WIDE=1667;
@@ -50,11 +53,11 @@ const CORNER=c=>`<svg width="208" height="208" viewBox="0 0 180 180" fill="${c}"
  <circle cx="40" cy="40" r="6.5"/></svg>`;
 
 const CSS=`
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ink:#4A423C;--line:#5A5049;--taupe:#7D726B;--rose:#A8646D;--gold:#B9A06A;--cream:#FCF9F5}
 html,body{width:${W}px;height:${H}px;overflow:hidden}
-body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
+body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .menu{position:relative;width:${W}px;height:${H}px;background:var(--cream)}
 .grain{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:.5;
   background:repeating-linear-gradient(118deg,rgba(120,105,95,.045) 0 2px,transparent 2px 9px),
@@ -72,7 +75,7 @@ body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
   align-items:center;justify-content:center;gap:24px}
 .title{font-weight:700;line-height:1.08;white-space:nowrap;
   text-shadow:0 2px 20px rgba(252,249,245,.95),0 0 44px rgba(252,249,245,.92)}
-.eyebrow{font-size:84px;font-weight:700;letter-spacing:.26em;text-indent:.26em;color:var(--rose)}
+.eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:var(--rose)}
 .div{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;gap:20px}
 .div.v{flex-direction:column}
 .bar{flex:1;background:var(--line);border-radius:4px}
@@ -80,7 +83,7 @@ body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .div.v .bar{width:7px}
 `;
 
-const sz=t=>{const n=[...t].length;return n<=2?235:n===3?185:148};
+const sz=t=>{const n=[...t].length;return n<=2?248:n===3?196:156};
 const cell=(t,img,x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
   <div class="mid">${ORN('var(--gold)',{long:false,scale:1.05})}
@@ -93,14 +96,14 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div class="photo"><img src="${b64(WEEKLY.photo)}"></div>
    <div style="position:absolute;right:0;top:0;width:300px;height:100%;z-index:1;
      background:linear-gradient(to right,rgba(252,249,245,0),var(--cream) 88%)"></div>
-   <div class="mid"><div class="title" style="font-size:185px;letter-spacing:.12em;text-indent:.12em">${WEEKLY.name}</div>
+   <div class="mid"><div class="title" style="font-size:196px;letter-spacing:.1em;text-indent:.1em">${WEEKLY.name}</div>
      ${RULE('var(--gold)',300)}</div>
  </div>
  <div style="position:relative;flex:1;height:100%;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:20px">
    <div class="eyebrow">本週特賞</div>${ORN('var(--gold)',{long:false,scale:1.05})}
-   <div style="font-size:74px;font-weight:600;letter-spacing:.1em;color:var(--taupe);white-space:nowrap">${WEEKLY.spec}</div>
-   <div style="font-size:132px;font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap">${WEEKLY.price}</div>
+   <div style="font-size:78px;font-weight:400;letter-spacing:.1em;color:var(--taupe);white-space:nowrap">${WEEKLY.spec}</div>
+   <div style="font-size:138px;font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap">${WEEKLY.price}</div>
  </div></div>`;
 
 const M=76, PAD=70;
@@ -135,7 +138,7 @@ ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
  const p=await ctx.newPage();
  await p.setContent(html,{waitUntil:'load'});
  await p.evaluate(()=>document.fonts.ready);
- await p.waitForTimeout(900);
+ await p.waitForTimeout(4000);
  const bad=await p.evaluate(()=>{const r=[];
    document.querySelectorAll('.title,.eyebrow').forEach(e=>{const c=e.closest('.cell').getBoundingClientRect(),b=e.getBoundingClientRect();
      if(b.left<c.left+34||b.right>c.right-34)r.push('文字太寬：'+e.textContent);});
@@ -149,6 +152,7 @@ ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
  await b.close();
  const cuts=[['1-1_1-2_本週特賞_雪花酥.png',WIDE,CH,0,0],['1-3_節慶禮盒.png',W-WIDE,CH,WIDE,0],
    ['2-1_蛋糕.png',CW,CH,0,CH],['2-2_訂購須知.png',WIDE-CW,CH,CW,CH],['2-3_聯絡我們.png',W-WIDE,CH,WIDE,CH]];
+ if(!SLICE)return;
  for(const [f,w,h,x,y] of cuts){
    execSync(`convert ${JSON.stringify(full)} -crop ${w}x${h}+${x}+${y} +repage ${JSON.stringify(path.join(OUT,f))}`);
    console.log('✅',f);
