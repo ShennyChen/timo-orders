@@ -35,12 +35,19 @@ const RULE=(c,w)=>`<svg width="${w}" height="${w*0.085}" viewBox="0 0 400 34" fi
  <path d="M222 17 C242 17 262 17 288 17" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
  <circle cx="96" cy="17" r="5"/><circle cx="304" cy="17" r="5"/></svg>`;
 /* 整幅外框的四角花飾 */
-const CORNER=c=>`<svg width="150" height="150" viewBox="0 0 120 120" fill="${c}">
- <g fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round">
-   <path d="M8 58 C8 30 30 8 58 8"/><path d="M8 84 C8 40 40 8 84 8" opacity=".5"/></g>
- <path d="M58 8 C70 8 81 13 89 22 C76 24 65 18 58 8 Z"/>
- <path d="M8 58 C8 70 13 81 22 89 C24 76 18 65 8 58 Z"/>
- <circle cx="31" cy="31" r="5"/></svg>`;
+const CORNER=c=>`<svg width="208" height="208" viewBox="0 0 180 180" fill="${c}">
+ <g fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round">
+   <path d="M12 92 C12 48 48 12 92 12"/>
+   <path d="M12 128 C12 64 64 12 128 12" opacity=".45"/>
+   <path d="M92 12 C110 12 124 19 134 31"/>
+   <path d="M12 92 C12 110 19 124 31 134"/>
+   <path d="M134 31 C146 31 154 24 154 14 C154 5 143 3 140 11 C137 19 146 22 152 18"/>
+   <path d="M31 134 C31 146 24 154 14 154 C5 154 3 143 11 140 C19 137 22 146 18 152"/>
+ </g>
+ <path d="M92 12 C106 12 119 19 130 31 C112 33 98 26 92 12 Z"/>
+ <path d="M12 92 C12 106 19 119 31 130 C33 112 26 98 12 92 Z"/>
+ <path d="M50 26 C58 38 62 46 60 52 C58 58 50 64 38 72 C36 58 38 48 42 42 C45 37 47 31 50 26 Z" opacity=".75"/>
+ <circle cx="40" cy="40" r="6.5"/></svg>`;
 
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&display=swap');
@@ -55,8 +62,8 @@ body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
              radial-gradient(120% 90% at 50% 100%,rgba(176,152,140,.14),transparent 58%)}
 /* 整幅外框：雙線＋四角花飾 */
 .edge{position:absolute;z-index:5;pointer-events:none;border:3px solid var(--gold);opacity:.85}
-.edge.o{inset:26px}.edge.i{inset:40px;border-width:1.5px;opacity:.6}
-.cnr{position:absolute;z-index:5;pointer-events:none;opacity:.9}
+.edge.o{inset:24px;border-width:4px}.edge.i{inset:40px;border-width:1.5px;opacity:.65}.edge.t{inset:53px;border-width:1px;opacity:.38}
+.cnr{position:absolute;z-index:5;pointer-events:none;opacity:.92}.eo{position:absolute;z-index:5;pointer-events:none;display:grid;place-items:center;background:transparent}
 .cell{position:absolute;overflow:hidden}
 .photo{position:absolute;inset:0}
 .photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.5)}
@@ -99,6 +106,13 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
 const M=76, PAD=70;
 const vdiv=(x,y)=>`<div class="div v" style="left:${x-PAD/2}px;top:${y+M}px;width:${PAD}px;height:${CH-M*2}px">
   <span class="bar"></span>${ORN('var(--line)',{long:false,vert:true})}<span class="bar"></span></div>`;
+const EC=39, EW=168, EH=62;   // 框線中心、襯底長短邊
+const edgeOrn=[
+  `left:${W/2-EW/2}px;top:${EC-EH/2}px;width:${EW}px;height:${EH}px`,
+  `left:${W/2-EW/2}px;top:${H-EC-EH/2}px;width:${EW}px;height:${EH}px`,
+  `left:${EC-EH/2}px;top:${H/2-EW/2}px;width:${EH}px;height:${EW}px`,
+  `left:${W-EC-EH/2}px;top:${H/2-EW/2}px;width:${EH}px;height:${EW}px`]
+ .map((st,i)=>`<div class="eo" style="${st}">${ORN('var(--gold)',{long:false,scale:0.6,vert:i>1})}</div>`).join('');
 const corners=[[26,26,0],[W-176,26,90],[W-176,H-176,180],[26,H-176,270]]
   .map(([l,t,r])=>`<div class="cnr" style="left:${l}px;top:${t}px;transform:rotate(${r}deg)">${CORNER('var(--gold)')}</div>`).join('');
 
@@ -111,7 +125,7 @@ ${cell('聯絡我們',null,WIDE,CH,W-WIDE,CH)}
 <div class="div h" style="left:${M}px;top:${CH-PAD/2}px;width:${W-M*2}px;height:${PAD}px">
   <span class="bar"></span>${ORN('var(--line)',{long:true})}<span class="bar"></span></div>
 ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
-<div class="edge o"></div><div class="edge i"></div>${corners}
+<div class="edge o"></div><div class="edge i"></div><div class="edge t"></div>${corners}${edgeOrn}
 <div class="grain"></div></div>`;
 
 (async()=>{
