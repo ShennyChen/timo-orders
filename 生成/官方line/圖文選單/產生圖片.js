@@ -9,7 +9,7 @@ const WEEKLY={name:'雪花酥',photo:'snow',spec:'850g／包',price:'200元'};
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--ink:#4E463F;--line:#5A5049;--taupe:#7D726B;--rose:#B87880;--gold:#BFA571;--cream:#FCF9F5}
+:root{--ink:#4E463F;--line:#5A5049;--taupe:#7D726B;--rose:#A8646D;--gold:#BFA571;--cream:#FCF9F5}
 html,body{width:${W}px;height:${H}px;overflow:hidden}
 body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .menu{position:relative;width:${W}px;height:${H}px;background:var(--cream)}
@@ -26,9 +26,14 @@ body{font-family:"Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
   align-items:center;justify-content:center;gap:26px}
 .title{font-weight:900;line-height:1.06;white-space:nowrap;
   text-shadow:0 2px 20px rgba(252,249,245,.95),0 0 44px rgba(252,249,245,.92)}
-.eyebrow{font-size:60px;font-weight:700;letter-spacing:.34em;text-indent:.34em;color:var(--rose)}
+.eyebrow{font-size:88px;font-weight:900;letter-spacing:.2em;text-indent:.2em;color:var(--rose)}
 /* 內部分線：深色、夠粗，縮到手機上才看得見 */
-.div{position:absolute;z-index:4;background:var(--line);border-radius:6px}
+.div{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;gap:18px}
+.div.v{flex-direction:column}
+.bar{flex:1;background:var(--line);border-radius:5px}
+.div.h .bar{height:9px}
+.div.v .bar{width:9px}
+.div.v .orn{transform:rotate(90deg)}
 `;
 const leaf=(w,c)=>`<svg width="${w}" height="${w*0.26}" viewBox="0 0 200 52" fill="none" stroke="${c}" stroke-width="3.4" stroke-linecap="round">
 <path d="M100 40 C100 26,100 18,100 10"/>
@@ -39,6 +44,18 @@ const leaf=(w,c)=>`<svg width="${w}" height="${w*0.26}" viewBox="0 0 200 52" fil
 <path d="M26 44 C46 44,64 44,84 44"/><path d="M116 44 C136 44,154 44,174 44"/>
 <circle cx="100" cy="44" r="4.4" fill="${c}" stroke="none"/></svg>`;
 
+const ORN=(c)=>`<svg class="orn" width="250" height="64" viewBox="0 0 250 64" fill="none" style="flex:0 0 auto">
+<g fill="${c}">
+ <path d="M125 10 L137 32 L125 54 L113 32 Z"/>
+ <path d="M104 32 C92 44 76 52 56 55 C66 39 84 30 104 32 Z"/>
+ <path d="M146 32 C158 44 174 52 194 55 C184 39 166 30 146 32 Z"/>
+ <path d="M104 32 C92 20 76 12 56 9 C66 25 84 34 104 32 Z"/>
+ <path d="M146 32 C158 20 174 12 194 9 C184 25 166 34 146 32 Z"/>
+</g>
+<g stroke="${c}" stroke-width="6" stroke-linecap="round" fill="none">
+ <path d="M56 32 C40 32 30 25 30 16 C30 9 40 8 42 14 C44 20 36 23 30 20"/>
+ <path d="M194 32 C210 32 220 25 220 16 C220 9 210 8 208 14 C206 20 214 23 220 20"/>
+</g></svg>`;
 const sz=t=>{const n=[...t].length;return n<=2?250:n===3?200:162};
 const plain=(t,img)=>`<div class="cell" style="left:var(--x);top:var(--y);width:var(--w);height:var(--h)">
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
@@ -71,10 +88,10 @@ ${cell('節日禮盒',b64('gift'),WIDE,0,CW,CH)}
 ${cell('蛋糕',b64('cake'),0,CH,CW,CH)}
 ${cell('訂購須知',null,CW,CH,W-WIDE+ (WIDE-CW) - (W-WIDE-CW) ,CH).replace(/width:\d+px/,'width:'+(WIDE-CW)+'px')}
 ${cell('聯絡我們',null,WIDE,CH,CW,CH)}
-<div class="div" style="left:${M}px;top:${CH-T/2}px;width:${W-M*2}px;height:${T}px"></div>
-<div class="div" style="left:${WIDE-T/2}px;top:${M}px;width:${T}px;height:${CH-M*2}px"></div>
-<div class="div" style="left:${CW-T/2}px;top:${CH+M}px;width:${T}px;height:${CH-M*2}px"></div>
-<div class="div" style="left:${WIDE-T/2}px;top:${CH+M}px;width:${T}px;height:${CH-M*2}px"></div>
+<div class="div h" style="left:${M}px;top:${CH-32}px;width:${W-M*2}px;height:64px"><span class="bar"></span>${ORN("var(--line)")}<span class="bar"></span></div>
+<div class="div v" style="left:${WIDE-32}px;top:${M}px;width:64px;height:${CH-M*2}px"><span class="bar"></span>${ORN("var(--line)")}<span class="bar"></span></div>
+<div class="div v" style="left:${CW-32}px;top:${CH+M}px;width:64px;height:${CH-M*2}px"><span class="bar"></span>${ORN("var(--line)")}<span class="bar"></span></div>
+<div class="div v" style="left:${WIDE-32}px;top:${CH+M}px;width:64px;height:${CH-M*2}px"><span class="bar"></span>${ORN("var(--line)")}<span class="bar"></span></div>
 <div class="grain"></div></div>`;
 
 (async()=>{
