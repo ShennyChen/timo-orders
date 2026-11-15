@@ -56,7 +56,7 @@ const RULE=(c,w)=>`<svg width="${w}" height="${w*0.13}" viewBox="0 0 400 52" fil
  <path d="M278 26 C294 26 308 26 322 26" fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round"/>
  ${FLOWER(62,26,10,c)}${FLOWER(338,26,10,c)}</svg>`;
 /* 外框四角：雙弧藤蔓＋渦卷＋葉片＋花朵 */
-const CORNER=c=>`<svg width="230" height="230" viewBox="0 0 180 180" fill="${c}">
+const CORNER=c=>`<svg width="180" height="180" viewBox="0 0 180 180" fill="${c}">
  <g fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round">
    <path d="M12 92 C12 48 48 12 92 12"/>
    <path d="M12 128 C12 64 64 12 128 12" opacity=".5"/>
@@ -72,6 +72,30 @@ const CORNER=c=>`<svg width="230" height="230" viewBox="0 0 180 180" fill="${c}"
  <path d="M52 27 C60 39 64 47 62 53 C60 59 52 65 40 73 C38 59 40 49 44 43 C47 38 49 32 52 27 Z" opacity=".65"/>
  ${FLOWER(42,42,14,c)}</svg>`;
 
+/* ── 古典證書框：四邊連續捲草鏈＋上下大型花冠 ───────────── */
+const G='%23BE9F56';
+const TILE_V=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='96'><g fill='none' stroke='${G}' stroke-width='5.5' stroke-linecap='round'><path d='M36 0 L36 26'/><path d='M36 26 C22 26 13 35 13 46 C13 55 25 57 28 49 C31 41 22 37 15 42'/><path d='M36 26 L36 60'/><path d='M36 60 C50 60 59 69 59 80 C59 89 47 91 44 83 C41 75 50 71 57 76'/><path d='M36 60 L36 96'/></g><g fill='${G}' opacity='.75'><path d='M36 31 C29 35 24 42 22 51 C31 47 36 40 36 31 Z'/><path d='M36 65 C43 69 48 76 50 85 C41 81 36 74 36 65 Z'/></g></svg>")`;
+const TILE_H=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='72'><g fill='none' stroke='${G}' stroke-width='5.5' stroke-linecap='round'><path d='M0 36 L26 36'/><path d='M26 36 C26 22 35 13 46 13 C55 13 57 25 49 28 C41 31 37 22 42 15'/><path d='M26 36 L60 36'/><path d='M60 36 C60 50 69 59 80 59 C89 59 91 47 83 44 C75 41 71 50 76 57'/><path d='M60 36 L96 36'/></g><g fill='${G}' opacity='.75'><path d='M31 36 C35 29 42 24 51 22 C47 31 40 36 31 36 Z'/><path d='M65 36 C69 43 76 48 85 50 C81 41 74 36 65 36 Z'/></g></svg>")`;
+/* 上下中央的大型花冠 */
+const CREST=(c,flip)=>`<svg width="620" height="150" viewBox="0 0 620 150" fill="${c}"
+  style="${flip?'transform:scaleY(-1);':''}">
+ <g fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round">
+  <path d="M310 118 C258 118 224 104 196 82 C172 63 146 52 118 56 C96 59 88 76 100 88 C112 100 132 92 128 76"/>
+  <path d="M310 118 C362 118 396 104 424 82 C448 63 474 52 502 56 C524 59 532 76 520 88 C508 100 488 92 492 76"/>
+  <path d="M196 82 C178 94 158 102 136 104"/>
+  <path d="M424 82 C442 94 462 102 484 104"/>
+ </g>
+ <path d="M310 112 C292 104 276 90 266 70 C286 78 302 92 310 112 Z"/>
+ <path d="M310 112 C328 104 344 90 354 70 C334 78 318 92 310 112 Z"/>
+ <path d="M238 96 C224 94 210 88 198 78 C214 76 228 82 238 96 Z" opacity=".8"/>
+ <path d="M382 96 C396 94 410 88 422 78 C406 76 392 82 382 96 Z" opacity=".8"/>
+ ${FLOWER(310,60,30,c)}
+ <path d="M310 14 C320 32 326 44 326 53 C326 60 319 66 310 66 C301 66 294 60 294 53 C294 44 300 32 310 14 Z"/>
+ ${FLOWER(246,80,15,c)}${FLOWER(374,80,15,c)}
+ ${FLOWER(112,76,13,c)}${FLOWER(508,76,13,c)}
+ <circle cx="166" cy="98" r="6"/><circle cx="454" cy="98" r="6"/>
+</svg>`;
+
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -85,8 +109,7 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
              radial-gradient(120% 90% at 50% 100%,rgba(176,152,140,.14),transparent 58%)}
 /* 整幅外框：雙線＋四角花飾 */
 .edge{position:absolute;z-index:5;pointer-events:none;border:3px solid var(--gold);opacity:.85}
-.edge.o{inset:24px;border-width:4px}.edge.i{inset:40px;border-width:1.5px;opacity:.65}.edge.t{inset:60px;border-width:1px;opacity:.42}.band{position:absolute;z-index:5;pointer-events:none;opacity:.9}.band.h{height:16px;background-repeat:repeat-x;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='52' height='16'><g fill='%23BE9F56'><path d='M26 2 L31 8 L26 14 L21 8 Z'/><circle cx='7' cy='8' r='2.4'/><circle cx='45' cy='8' r='2.4'/></g></svg>")}.band.v{width:16px;background-repeat:repeat-y;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='52'><g fill='%23BE9F56'><path d='M8 21 L14 26 L8 31 L2 26 Z'/><circle cx='8' cy='7' r='2.4'/><circle cx='8' cy='45' r='2.4'/></g></svg>")}
-.cnr{position:absolute;z-index:5;pointer-events:none;opacity:.92}.eo{position:absolute;z-index:5;pointer-events:none;display:grid;place-items:center;background:transparent}
+.edge.o{inset:18px;border-width:3px;opacity:.8}.edge.i{inset:112px;border-width:2px;opacity:.7}.edge.t{inset:122px;border-width:1px;opacity:.45}.chain{position:absolute;z-index:5;pointer-events:none;opacity:.95}.chain.h{height:72px;background-image:${TILE_H};background-repeat:repeat-x;background-position:center}.chain.v{width:72px;background-image:${TILE_V};background-repeat:repeat-y;background-position:center}.crest{position:absolute;z-index:6;pointer-events:none;left:50%;transform:translateX(-50%)}
 .cell{position:absolute;overflow:hidden}
 .photo{position:absolute;inset:0}
 .photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.5)}
@@ -126,7 +149,7 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div style="font-size:138px;font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap">${WEEKLY.price}</div>
  </div></div>`;
 
-const M=76, PAD=70;
+const M=150, PAD=70;
 const vdiv=(x,y)=>`<div class="div v" style="left:${x-PAD/2}px;top:${y+M}px;width:${PAD}px;height:${CH-M*2}px">
   <span class="bar"></span>${ORN('var(--line)',{long:false,vert:true})}<span class="bar"></span></div>`;
 const EC=39, EW=168, EH=62;   // 框線中心、襯底長短邊
@@ -136,8 +159,8 @@ const edgeOrn=[
   `left:${EC-EH/2}px;top:${H/2-EW/2}px;width:${EH}px;height:${EW}px`,
   `left:${W-EC-EH/2}px;top:${H/2-EW/2}px;width:${EH}px;height:${EW}px`]
  .map((st,i)=>`<div class="eo" style="${st}">${ORN('var(--gold)',{long:false,scale:0.6,vert:i>1})}</div>`).join('');
-const corners=[[26,26,0],[W-176,26,90],[W-176,H-176,180],[26,H-176,270]]
-  .map(([l,t,r])=>`<div class="cnr" style="left:${l}px;top:${t}px;transform:rotate(${r}deg)">${CORNER('var(--gold)')}</div>`).join('');
+const corners=[[22,22,0],[W-202,22,90],[W-202,H-202,180],[22,H-202,270]]
+  .map(([l,t,r])=>`<div class="cnr" style="left:${l}px;top:${t}px;width:180px;height:180px;transform:rotate(${r}deg)">${CORNER('var(--gold)')}</div>`).join('');
 
 const html=`<style>${CSS}</style><div class="menu">
 ${weekly(0,0,WIDE,CH)}
@@ -148,7 +171,7 @@ ${cell('聯絡我們',null,WIDE,CH,W-WIDE,CH)}
 <div class="div h" style="left:${M}px;top:${CH-PAD/2}px;width:${W-M*2}px;height:${PAD}px">
   <span class="bar"></span>${ORN('var(--line)',{long:true})}<span class="bar"></span></div>
 ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
-<div class="edge o"></div><div class="edge i"></div><div class="edge t"></div><div class="band h" style="left:46px;top:42px;right:46px"></div><div class="band h" style="left:46px;bottom:42px;right:46px"></div><div class="band v" style="top:46px;left:42px;bottom:46px"></div><div class="band v" style="top:46px;right:42px;bottom:46px"></div>${corners}${edgeOrn}
+<div class="edge o"></div><div class="edge i"></div><div class="edge t"></div><div class="chain h" style="left:96px;top:26px;right:96px"></div><div class="chain h" style="left:96px;bottom:26px;right:96px"></div><div class="chain v" style="top:96px;left:26px;bottom:96px"></div><div class="chain v" style="top:96px;right:26px;bottom:96px"></div><div class="crest" style="top:4px">${CREST('var(--gold)',false)}</div><div class="crest" style="bottom:4px">${CREST('var(--gold)',true)}</div>${corners}${edgeOrn}
 <div class="grain"></div></div>`;
 
 (async()=>{
