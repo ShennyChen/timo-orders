@@ -9,21 +9,35 @@ const b64=n=>'data:image/jpeg;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'
 const W=2500,H=1686,CW=833,CH=843,WIDE=1667;
 const WEEKLY={name:'雪花酥',photo:'snow',spec:'850g／包',price:'200元'};
 
-/* ── 巴洛克捲葉語彙（取自 logo 兩側裝飾）────────────────── */
+/* ── 巴洛克花草語彙（取自 logo 兩側裝飾）──────────────────
+   六瓣花＋雙層尖葉＋藤蔓渦卷。長分線用繁版，短的用簡版。      */
+const FLOWER=(cx,cy,r,c)=>{let p='';
+  for(let k=0;k<6;k++){const a=k*60*Math.PI/180,
+    x=(cx+Math.cos(a)*r*0.92).toFixed(1), y=(cy+Math.sin(a)*r*0.92).toFixed(1);
+    p+=`<ellipse cx="${x}" cy="${y}" rx="${(r*0.64).toFixed(1)}" ry="${(r*0.44).toFixed(1)}" transform="rotate(${k*60} ${x} ${y})"/>`;}
+  return `<g fill="${c}">${p}<circle cx="${cx}" cy="${cy}" r="${(r*0.46).toFixed(1)}"/></g>`;};
+
 const _wing=(c,long)=>`
- <path d="M254 60 C232 54 208 42 182 22 C186 44 200 58 224 64 C238 67 250 65 254 60 Z"/>
- <path d="M254 60 C232 66 208 78 182 98 C186 76 200 62 224 56 C238 53 250 55 254 60 Z"/>
+ <path d="M250 60 C228 53 204 40 178 19 C182 43 197 58 222 65 C236 68 245 66 250 60 Z"/>
+ <path d="M250 60 C228 67 204 80 178 101 C182 77 197 62 222 55 C236 52 245 54 250 60 Z"/>
+ <path d="M240 60 C224 51 209 38 196 19 C198 38 208 51 223 58 Z" opacity=".5"/>
+ <path d="M240 60 C224 69 209 82 196 101 C198 82 208 69 223 62 Z" opacity=".5"/>
  ${long?`
- <path d="M182 60 C166 60 152 60 138 60" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round"/>
- <path d="M138 60 C110 60 92 46 92 27 C92 12 109 6 118 19 C126 31 112 45 98 38" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round"/>
- <path d="M138 60 C127 80 108 94 82 101 C96 79 115 65 138 60 Z"/>
- <circle cx="58" cy="60" r="7"/>`:`
- <path d="M182 60 C170 60 160 60 150 60" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round"/>
- <circle cx="132" cy="60" r="7.5"/>`}`;
+ <path d="M178 60 C166 60 155 60 144 60" fill="none" stroke="${c}" stroke-width="9" stroke-linecap="round"/>
+ ${FLOWER(128,60,16,c)}
+ <path d="M112 60 C102 60 94 60 86 60" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round"/>
+ <path d="M86 60 C60 60 42 45 42 26 C42 11 60 5 69 18 C77 30 62 45 48 38" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round"/>
+ <path d="M86 60 C75 82 54 98 26 105 C42 80 62 65 86 60 Z"/>
+ <path d="M72 60 C64 73 51 84 32 90 C42 73 55 64 72 60 Z" opacity=".45"/>
+ ${FLOWER(16,60,11,c)}`:`
+ <path d="M178 60 C166 60 156 60 146 60" fill="none" stroke="${c}" stroke-width="9" stroke-linecap="round"/>
+ ${FLOWER(126,60,14,c)}`}`;
 
 function ORN(c,{long=true,vert=false,scale=1}={}){
-  const vx=long?0:106, vw=long?560:348, vh=120;
-  const body=`<path d="M280 18 C293 39 301 52 301 60 C301 68 293 81 280 102 C267 81 259 68 259 60 C259 52 267 39 280 18 Z"/>
+  const vx=long?0:98, vw=long?560:364, vh=120;
+  const body=`${FLOWER(280,60,27,c)}
+   <path d="M280 8 C289 26 294 37 294 45 C294 51 288 56 280 56 C272 56 266 51 266 45 C266 37 271 26 280 8 Z"/>
+   <path d="M280 112 C289 94 294 83 294 75 C294 69 288 64 280 64 C272 64 266 69 266 75 C266 83 271 94 280 112 Z"/>
    ${_wing(c,long)}<g transform="translate(560,0) scale(-1,1)">${_wing(c,long)}</g>`;
   const w=vw*0.54*scale, h=vh*0.54*scale;
   if(!vert) return `<svg width="${w}" height="${h}" viewBox="${vx} 0 ${vw} ${vh}" fill="${c}" style="flex:0 0 auto">${body}</svg>`;
@@ -31,17 +45,21 @@ function ORN(c,{long=true,vert=false,scale=1}={}){
   return `<svg width="${h}" height="${w}" viewBox="${cx-vh/2} ${cy-vw/2} ${vh} ${vw}" fill="${c}" style="flex:0 0 auto">
     <g transform="rotate(90 ${cx} ${cy})">${body}</g></svg>`;
 }
-/* 標題下方的細飾線 */
-const RULE=(c,w)=>`<svg width="${w}" height="${w*0.085}" viewBox="0 0 400 34" fill="${c}" style="opacity:.9">
- <path d="M200 7 L209 17 L200 27 L191 17 Z"/>
- <path d="M178 17 C158 17 138 17 112 17" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
- <path d="M222 17 C242 17 262 17 288 17" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
- <circle cx="96" cy="17" r="5"/><circle cx="304" cy="17" r="5"/></svg>`;
-/* 整幅外框的四角花飾 */
-const CORNER=c=>`<svg width="208" height="208" viewBox="0 0 180 180" fill="${c}">
+/* 標題下方：藤蔓飾線，中央花朵、兩側葉片、末端小花 */
+const RULE=(c,w)=>`<svg width="${w}" height="${w*0.13}" viewBox="0 0 400 52" fill="${c}" style="opacity:.95">
+ ${FLOWER(200,26,15,c)}
+ <path d="M174 26 C158 16 142 10 122 8 C134 20 152 26 174 26 Z"/>
+ <path d="M174 26 C158 36 142 42 122 44 C134 32 152 26 174 26 Z"/>
+ <path d="M226 26 C242 16 258 10 278 8 C266 20 248 26 226 26 Z"/>
+ <path d="M226 26 C242 36 258 42 278 44 C266 32 248 26 226 26 Z"/>
+ <path d="M122 26 C106 26 92 26 78 26" fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round"/>
+ <path d="M278 26 C294 26 308 26 322 26" fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round"/>
+ ${FLOWER(62,26,10,c)}${FLOWER(338,26,10,c)}</svg>`;
+/* 外框四角：雙弧藤蔓＋渦卷＋葉片＋花朵 */
+const CORNER=c=>`<svg width="230" height="230" viewBox="0 0 180 180" fill="${c}">
  <g fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round">
    <path d="M12 92 C12 48 48 12 92 12"/>
-   <path d="M12 128 C12 64 64 12 128 12" opacity=".45"/>
+   <path d="M12 128 C12 64 64 12 128 12" opacity=".5"/>
    <path d="M92 12 C110 12 124 19 134 31"/>
    <path d="M12 92 C12 110 19 124 31 134"/>
    <path d="M134 31 C146 31 154 24 154 14 C154 5 143 3 140 11 C137 19 146 22 152 18"/>
@@ -49,13 +67,15 @@ const CORNER=c=>`<svg width="208" height="208" viewBox="0 0 180 180" fill="${c}"
  </g>
  <path d="M92 12 C106 12 119 19 130 31 C112 33 98 26 92 12 Z"/>
  <path d="M12 92 C12 106 19 119 31 130 C33 112 26 98 12 92 Z"/>
- <path d="M50 26 C58 38 62 46 60 52 C58 58 50 64 38 72 C36 58 38 48 42 42 C45 37 47 31 50 26 Z" opacity=".75"/>
- <circle cx="40" cy="40" r="6.5"/></svg>`;
+ <path d="M62 20 C76 25 86 33 90 44 C75 45 63 37 62 20 Z" opacity=".6"/>
+ <path d="M20 62 C25 76 33 86 44 90 C45 75 37 63 20 62 Z" opacity=".6"/>
+ <path d="M52 27 C60 39 64 47 62 53 C60 59 52 65 40 73 C38 59 40 49 44 43 C47 38 49 32 52 27 Z" opacity=".65"/>
+ ${FLOWER(42,42,14,c)}</svg>`;
 
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--ink:#4A423C;--line:#5A5049;--taupe:#7D726B;--rose:#A8646D;--gold:#B9A06A;--cream:#FCF9F5}
+:root{--ink:#4A423C;--line:#5A5049;--taupe:#7D726B;--rose:#A8646D;--gold:#BE9F56;--cream:#FCF9F5}
 html,body{width:${W}px;height:${H}px;overflow:hidden}
 body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .menu{position:relative;width:${W}px;height:${H}px;background:var(--cream)}
@@ -65,7 +85,7 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
              radial-gradient(120% 90% at 50% 100%,rgba(176,152,140,.14),transparent 58%)}
 /* 整幅外框：雙線＋四角花飾 */
 .edge{position:absolute;z-index:5;pointer-events:none;border:3px solid var(--gold);opacity:.85}
-.edge.o{inset:24px;border-width:4px}.edge.i{inset:40px;border-width:1.5px;opacity:.65}.edge.t{inset:53px;border-width:1px;opacity:.38}
+.edge.o{inset:24px;border-width:4px}.edge.i{inset:40px;border-width:1.5px;opacity:.65}.edge.t{inset:60px;border-width:1px;opacity:.42}.band{position:absolute;z-index:5;pointer-events:none;opacity:.9}.band.h{height:16px;background-repeat:repeat-x;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='52' height='16'><g fill='%23BE9F56'><path d='M26 2 L31 8 L26 14 L21 8 Z'/><circle cx='7' cy='8' r='2.4'/><circle cx='45' cy='8' r='2.4'/></g></svg>")}.band.v{width:16px;background-repeat:repeat-y;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='52'><g fill='%23BE9F56'><path d='M8 21 L14 26 L8 31 L2 26 Z'/><circle cx='8' cy='7' r='2.4'/><circle cx='8' cy='45' r='2.4'/></g></svg>")}
 .cnr{position:absolute;z-index:5;pointer-events:none;opacity:.92}.eo{position:absolute;z-index:5;pointer-events:none;display:grid;place-items:center;background:transparent}
 .cell{position:absolute;overflow:hidden}
 .photo{position:absolute;inset:0}
@@ -78,9 +98,9 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
 .eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:var(--rose)}
 .div{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;gap:20px}
 .div.v{flex-direction:column}
-.bar{flex:1;background:var(--line);border-radius:4px}
-.div.h .bar{height:7px}
-.div.v .bar{width:7px}
+.bar{flex:1}
+.div.h .bar{height:17px;background:linear-gradient(to bottom,var(--gold) 0 2.5px,transparent 2.5px 6px,var(--line) 6px 11px,transparent 11px 14.5px,var(--gold) 14.5px 17px)}
+.div.v .bar{width:17px;background:linear-gradient(to right,var(--gold) 0 2.5px,transparent 2.5px 6px,var(--line) 6px 11px,transparent 11px 14.5px,var(--gold) 14.5px 17px)}
 `;
 
 const sz=t=>160;   // 五格一律同字級，不因字數少就放大
@@ -88,7 +108,7 @@ const cell=(t,img,x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;wid
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
   <div class="mid">${ORN('var(--gold)',{long:false,scale:1.05})}
     <div class="title" style="font-size:${sz(t)}px;letter-spacing:.14em;text-indent:.14em">${t}</div>
-    ${RULE('var(--gold)',330)}
+    ${RULE('var(--gold)',380)}
   </div></div>`;
 
 const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;display:flex">
@@ -97,7 +117,7 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div style="position:absolute;right:0;top:0;width:300px;height:100%;z-index:1;
      background:linear-gradient(to right,rgba(252,249,245,0),var(--cream) 88%)"></div>
    <div class="mid"><div class="title" style="font-size:196px;letter-spacing:.1em;text-indent:.1em">${WEEKLY.name}</div>
-     ${RULE('var(--gold)',300)}</div>
+     ${RULE('var(--gold)',350)}</div>
  </div>
  <div style="position:relative;flex:1;height:100%;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:20px">
@@ -128,7 +148,7 @@ ${cell('聯絡我們',null,WIDE,CH,W-WIDE,CH)}
 <div class="div h" style="left:${M}px;top:${CH-PAD/2}px;width:${W-M*2}px;height:${PAD}px">
   <span class="bar"></span>${ORN('var(--line)',{long:true})}<span class="bar"></span></div>
 ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
-<div class="edge o"></div><div class="edge i"></div><div class="edge t"></div>${corners}${edgeOrn}
+<div class="edge o"></div><div class="edge i"></div><div class="edge t"></div><div class="band h" style="left:46px;top:42px;right:46px"></div><div class="band h" style="left:46px;bottom:42px;right:46px"></div><div class="band v" style="top:46px;left:42px;bottom:46px"></div><div class="band v" style="top:46px;right:42px;bottom:46px"></div>${corners}${edgeOrn}
 <div class="grain"></div></div>`;
 
 (async()=>{
