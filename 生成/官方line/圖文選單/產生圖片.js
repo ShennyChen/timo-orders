@@ -108,11 +108,12 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
 `;
 
 const FL=["var(--rose)","var(--rose2)","var(--sage)","var(--sage2)"];
-const sz=t=>160;
+const BAND=62, SAFE=22;   // 色帶寬、標題與色帶的最小間距
+const sz=t=>142;
 const cell=(t,img,x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
   <div class="mid" style="gap:14px">${SPRIG(...FL,330)}
-    <div class="title" style="font-size:${sz(t)}px;letter-spacing:.14em;text-indent:.14em">${t}</div>
+    <div class="title" style="font-size:${sz(t)}px;letter-spacing:.10em;text-indent:.10em">${t}</div>
   </div></div>`;
 
 const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;display:flex">
@@ -121,7 +122,7 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div style="position:absolute;right:0;top:0;width:300px;height:100%;z-index:1;
      background:linear-gradient(to right,rgba(253,250,247,0),var(--cream) 88%)"></div>
    <div class="mid" style="gap:14px">${SPRIG(...FL,300)}
-     <div class="title" style="font-size:196px;letter-spacing:.1em;text-indent:.1em">${WEEKLY.name}</div></div>
+     <div class="title" style="font-size:180px;letter-spacing:.1em;text-indent:.1em">${WEEKLY.name}</div></div>
  </div>
  <div style="position:relative;flex:1;height:100%;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:18px">
@@ -160,8 +161,10 @@ ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
  await p.evaluate(()=>document.fonts.ready);
  await p.waitForTimeout(4000);
  const bad=await p.evaluate(()=>{const r=[];
+   const BAND=62, SAFE=22, W=document.querySelector('.menu').clientWidth;
    document.querySelectorAll('.title,.eyebrow').forEach(e=>{const c=e.closest('.cell').getBoundingClientRect(),b=e.getBoundingClientRect();
-     if(b.left<c.left+34||b.right>c.right-34)r.push('文字太寬：'+e.textContent);});
+     if(b.left<c.left+20||b.right>c.right-20)r.push('文字超出格子：'+e.textContent);
+     if(b.left<BAND+SAFE||b.right>W-BAND-SAFE)r.push('文字太靠近色帶：'+e.textContent);});
    document.querySelectorAll('.div').forEach(d=>{const db=d.getBoundingClientRect();
      d.querySelectorAll('svg').forEach(s=>{const sb=s.getBoundingClientRect();
        if(sb.left<db.left-1||sb.right>db.right+1||sb.top<db.top-1||sb.bottom>db.bottom+1)r.push('紋飾超出分線框');});});
