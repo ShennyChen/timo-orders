@@ -10,73 +10,64 @@ const png=n=>'data:image/png;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'u
 const W=2500,H=1686,CW=833,CH=843,WIDE=1667;
 const WEEKLY={name:'雪花酥',photo:'snow',spec:'850g／包',price:'200元'};
 
-/* ── 鮮花語彙 ───────────────────────────────────────────
-   取自沁沁蛋糕上的擠花：奶油白底、粉玫瑰、薄荷綠葉。
-   小尺寸下細節會消失、顏色不會，所以用色彩而不是筆觸堆疊。 */
-const ROSE=(cx,cy,r,c,c2)=>{
-  const ring=(n,rad,rx,ry,off,fill,op)=>{let p='';
-    for(let k=0;k<n;k++){const a=(k*360/n+off)*Math.PI/180,
-      x=(cx+Math.cos(a)*rad).toFixed(1), y=(cy+Math.sin(a)*rad).toFixed(1);
-      p+=`<ellipse cx="${x}" cy="${y}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${fill}" opacity="${op}" transform="rotate(${(k*360/n+off).toFixed(0)} ${x} ${y})"/>`;}
-    return p;};
-  return `<g>${ring(6,r*0.74,r*0.52,r*0.40,0,c,1)}
-   ${ring(5,r*0.40,r*0.36,r*0.28,36,c2,1)}
-   <circle cx="${cx}" cy="${cy}" r="${(r*0.22).toFixed(1)}" fill="${c2}"/></g>`;};
+/* ── 黑色剪影花藤語彙 ──────────────────────────────────
+   捲鬚用「多段遞減線寬」模擬毛筆般的漸細，尖葉用填色路徑，
+   末端綴串珠點。左半畫一次，右半鏡射，確保對稱。        */
+const INK='#241F1B';
+/* 尖葉：不對稱槍頭形 */
+const LF=(x,y,L,rot,c,op)=>`<path transform="rotate(${rot} ${x} ${y})" opacity="${op||1}" fill="${c}"
+ d="M${x} ${y} C${x+L*0.30} ${y-L*0.26},${x+L*0.72} ${y-L*0.30},${x+L} ${y-L*0.06}
+    C${x+L*0.70} ${y+L*0.10},${x+L*0.32} ${y+L*0.16},${x} ${y} Z"/>`;
+/* 漸細捲鬚：沿路徑分段，線寬由粗到細 */
+const CURL=(c,segs)=>segs.map(([d,w])=>
+ `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`).join('');
+/* 串珠：由大到小 */
+const BEADS=(pts,c)=>pts.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`).join('');
 
-const BUD=(cx,cy,r,rot,c,c2,g)=>`<g transform="rotate(${rot} ${cx} ${cy})">
- <path d="M${cx} ${cy-r*1.5} C${cx+r*0.9} ${cy-r*0.9},${cx+r*0.8} ${cy+r*0.5},${cx} ${cy+r*0.8}
-   C${cx-r*0.8} ${cy+r*0.5},${cx-r*0.9} ${cy-r*0.9},${cx} ${cy-r*1.5} Z" fill="${c}"/>
- <path d="M${cx} ${cy+r*0.9} C${cx+r*0.7} ${cy+r*0.4},${cx+r*0.6} ${cy+r*1.4},${cx} ${cy+r*1.8}
-   C${cx-r*0.6} ${cy+r*1.4},${cx-r*0.7} ${cy+r*0.4},${cx} ${cy+r*0.9} Z" fill="${g}"/></g>`;
+/* 對稱花藤（左半，右半由呼叫端鏡射）*/
+const _half=(c)=>`
+ ${CURL(c,[
+  ["M200 72 C176 72 153 65 135 52",12],
+  ["M135 52 C121 42 113 29 113 16",8],
+  ["M113 16 C113 6 122 1 130 6 C138 11 135 22 125 21",5],
+  ["M125 21 C119 20 118 14 122 11",3]])}
+ ${LF(168,66,58,198,c)}
+ ${LF(142,44,50,236,c)}
+ ${LF(120,22,38,276,c,.9)}
+ ${CURL(c,[
+  ["M184 78 C169 88 158 101 154 116",8],
+  ["M154 116 C152 127 160 134 168 130 C174 127 172 119 165 120",4.5]])}
+ ${LF(160,100,42,142,c,.95)}
+ ${LF(150,124,32,176,c,.8)}
+ ${BEADS([[100,60,6.4],[86,64,4.6],[74,67,3.2],[64,69,2.1]],c)}`;
 
-const LEAF=(x,y,L,rot,g,g2)=>`<g transform="rotate(${rot} ${x} ${y})">
- <path d="M${x} ${y} C${x+L*0.34} ${y-L*0.30},${x+L*0.78} ${y-L*0.24},${x+L} ${y}
-   C${x+L*0.78} ${y+L*0.24},${x+L*0.34} ${y+L*0.30},${x} ${y} Z" fill="${g}"/>
- <path d="M${x+L*0.08} ${y} L${x+L*0.88} ${y}" stroke="${g2}" stroke-width="${L*0.035}" fill="none" opacity=".8"/></g>`;
+/* 標題上方／分線中央共用的對稱花藤 */
+const SPRIG=(c,w)=>KNOT(c,w,false);
 
-/* 角落花束：弧形枝＋葉＋玫瑰＋花苞 */
-const SPRAY=(c,c2,g,g2)=>`<svg width="300" height="300" viewBox="0 0 300 300">
- <g fill="none" stroke="${g2}" stroke-width="5" stroke-linecap="round" opacity=".85">
-  <path d="M26 26 C86 40 140 76 176 126"/>
-  <path d="M26 26 C44 84 72 134 118 174"/>
-  <path d="M60 44 C96 62 124 88 142 118"/>
- </g>
- ${LEAF(62,54,78,24,g,g2)}${LEAF(96,92,66,46,g,g2)}
- ${LEAF(48,86,70,66,g,g2)}${LEAF(118,66,58,6,g,g2)}
- ${LEAF(140,122,62,36,g,g2)}
- ${BUD(166,74,15,32,c,c2,g)}${BUD(86,160,14,-20,c,c2,g)}
- ${ROSE(178,128,40,c,c2)}
- ${ROSE(116,186,30,c,c2)}
- ${ROSE(44,36,26,c,c2)}
-</svg>`;
+const _body=(c)=>`${_half(c)}<g transform="translate(400,0) scale(-1,1)">${_half(c)}</g>
+ <path d="M200 44 C208 58 212 66 212 72 C212 79 206 84 200 84 C194 84 188 79 188 72
+   C188 66 192 58 200 44 Z" fill="${c}"/>
+ ${LF(200,96,30,76,c,.9)}${LF(200,96,30,104,c,.9)}
+ <circle cx="200" cy="112" r="5" fill="${c}"/>`;
+const KNOT=(c,s,vert)=>vert
+ ? `<svg width="${s*0.36}" height="${s}" viewBox="128 -128 144 400">
+     <g transform="rotate(90 200 72)">${_body(c)}</g></svg>`
+ : `<svg width="${s}" height="${s*0.36}" viewBox="0 0 400 144">${_body(c)}</svg>`;
 
-/* 標題上方：對稱小花枝 */
-const SPRIG=(c,c2,g,g2,w)=>`<svg width="${w}" height="${w*0.30}" viewBox="0 0 400 120">
- <g fill="none" stroke="${g2}" stroke-width="5" stroke-linecap="round" opacity=".85">
-  <path d="M200 60 C160 60 126 54 92 40"/><path d="M200 60 C240 60 274 54 308 40"/>
- </g>
- ${LEAF(150,58,60,194,g,g2)}${LEAF(250,58,60,-14,g,g2)}
- ${LEAF(126,70,48,150,g,g2)}${LEAF(274,70,48,30,g,g2)}
- ${BUD(96,40,13,-34,c,c2,g)}${BUD(304,40,13,34,c,c2,g)}
- ${ROSE(200,60,34,c,c2)}
-</svg>`;
-
-/* 細藤蔓：波浪細莖＋交錯小葉，重複鋪滿分線 */
-const S2='%237E7859', SG='%23A09A7C';
-const VINE_H=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='38'>`
- +`<path d='M0 19 C22 7 44 7 66 19 C88 31 110 31 132 19' fill='none' stroke='${S2}' stroke-width='3.2' stroke-linecap='round'/>`
- +`<path d='M33 12 C30 4 24 1 16 2 C19 10 26 13 33 12 Z' fill='${SG}'/>`
- +`<path d='M99 26 C102 34 108 37 116 36 C113 28 106 25 99 26 Z' fill='${SG}'/>`
- +`<path d='M66 19 C64 12 66 6 71 2 C74 9 72 15 66 19 Z' fill='${SG}' opacity='.8'/></svg>")`;
-const VINE_V=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='38' height='132'>`
- +`<path d='M19 0 C7 22 7 44 19 66 C31 88 31 110 19 132' fill='none' stroke='${S2}' stroke-width='3.2' stroke-linecap='round'/>`
- +`<path d='M12 33 C4 30 1 24 2 16 C10 19 13 26 12 33 Z' fill='${SG}'/>`
- +`<path d='M26 99 C34 102 37 108 36 116 C28 113 25 106 26 99 Z' fill='${SG}'/>`
- +`<path d='M19 66 C12 64 6 66 2 71 C9 74 15 72 19 66 Z' fill='${SG}' opacity='.8'/></svg>")`;
-/* 分線中央：單朵玫瑰配兩片葉 */
-const KNOT=(c,c2,g,g2,s,vert)=>vert
- ? `<svg width="${s*0.52}" height="${s}" viewBox="0 0 104 200">${LEAF(52,80,46,276,g,g2)}${LEAF(52,120,46,84,g,g2)}${ROSE(52,100,30,c,c2)}</svg>`
- : `<svg width="${s}" height="${s*0.52}" viewBox="0 0 200 104">${LEAF(80,52,46,186,g,g2)}${LEAF(120,52,46,-6,g,g2)}${ROSE(100,52,30,c,c2)}</svg>`;
+/* 分線藤蔓：波浪主莖＋交錯捲鬚與尖葉，重複鋪滿 */
+const K='%23241F1B';
+const VINE_H=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='48'>`
+ +`<path d='M0 24 C26 10 52 10 75 24 C98 38 124 38 150 24' fill='none' stroke='${K}' stroke-width='4' stroke-linecap='round'/>`
+ +`<path d='M37 15 C33 6 26 2 17 3 C21 12 29 16 37 15 Z' fill='${K}'/>`
+ +`<path d='M113 33 C117 42 124 46 133 45 C129 36 121 32 113 33 Z' fill='${K}'/>`
+ +`<path d='M75 24 C73 15 76 8 83 4 C86 12 83 20 75 24 Z' fill='${K}' opacity='.85'/>`
+ +`<circle cx='57' cy='17' r='2.6' fill='${K}'/><circle cx='93' cy='31' r='2.6' fill='${K}'/></svg>")`;
+const VINE_V=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='150'>`
+ +`<path d='M24 0 C10 26 10 52 24 75 C38 98 38 124 24 150' fill='none' stroke='${K}' stroke-width='4' stroke-linecap='round'/>`
+ +`<path d='M15 37 C6 33 2 26 3 17 C12 21 16 29 15 37 Z' fill='${K}'/>`
+ +`<path d='M33 113 C42 117 46 124 45 133 C36 129 32 121 33 113 Z' fill='${K}'/>`
+ +`<path d='M24 75 C15 73 8 76 4 83 C12 86 20 83 24 75 Z' fill='${K}' opacity='.85'/>`
+ +`<circle cx='17' cy='57' r='2.6' fill='${K}'/><circle cx='31' cy='93' r='2.6' fill='${K}'/></svg>")`;
 
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
@@ -107,11 +98,11 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
 .div.v .bar{width:38px;background-image:${VINE_V};background-repeat:repeat-y;background-position:center}
 `;
 
-const FL=["var(--rose)","var(--rose2)","var(--sage)","var(--sage2)"];
+const FL=[INK];
 const sz=t=>160;
 const cell=(t,img,x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
   ${img?`<div class="photo"><img src="${img}"></div>`:''}
-  <div class="mid" style="gap:14px">${SPRIG(...FL,330)}
+  <div class="mid" style="gap:14px">${SPRIG(INK,360)}
     <div class="title" style="font-size:${sz(t)}px;letter-spacing:.14em;text-indent:.14em">${t}</div>
   </div></div>`;
 
@@ -120,19 +111,19 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div class="photo"><img src="${b64(WEEKLY.photo)}"></div>
    <div style="position:absolute;right:0;top:0;width:300px;height:100%;z-index:1;
      background:linear-gradient(to right,rgba(253,250,247,0),var(--cream) 88%)"></div>
-   <div class="mid" style="gap:14px">${SPRIG(...FL,300)}
+   <div class="mid" style="gap:14px">${SPRIG(INK,330)}
      <div class="title" style="font-size:196px;letter-spacing:.1em;text-indent:.1em">${WEEKLY.name}</div></div>
  </div>
  <div style="position:relative;flex:1;height:100%;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:18px">
-   <div class="eyebrow">本週特賞</div>${SPRIG(...FL,300)}
+   <div class="eyebrow">本週特賞</div>${SPRIG(INK,330)}
    <div style="font-size:78px;font-weight:400;letter-spacing:.1em;color:var(--taupe);white-space:nowrap">${WEEKLY.spec}</div>
    <div style="font-size:138px;font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap">${WEEKLY.price}</div>
  </div></div>`;
 
-const M=190, PAD=72;
+const M=190, PAD=124;
 const vdiv=(x,y)=>`<div class="div v" style="left:${x-PAD/2}px;top:${y+M}px;width:${PAD}px;height:${CH-M*2}px">
-  <span class="bar"></span>${KNOT(...FL,112,true)}<span class="bar"></span></div>`;
+  <span class="bar"></span>${KNOT(INK,250,true)}<span class="bar"></span></div>`;
 const CN={tl:png('corner_tl'),tr:png('corner_tr'),bl:png('corner_bl'),br:png('corner_br')};
 const sprays=`<img class="spray" src="${CN.tl}" style="left:0;top:0;width:428px">`
  +`<img class="spray" src="${CN.tr}" style="right:0;top:0;width:428px">`
@@ -146,7 +137,7 @@ ${cell('蛋糕',b64('cake'),0,CH,CW,CH)}
 ${cell('訂購須知',null,CW,CH,WIDE-CW,CH)}
 ${cell('聯絡我們',null,WIDE,CH,W-WIDE,CH)}
 <div class="div h" style="left:${M}px;top:${CH-PAD/2}px;width:${W-M*2}px;height:${PAD}px">
-  <span class="bar"></span>${KNOT(...FL,122,false)}<span class="bar"></span></div>
+  <span class="bar"></span>${KNOT(INK,330,false)}<span class="bar"></span></div>
 ${vdiv(WIDE,0)}${vdiv(CW,CH)}${vdiv(WIDE,CH)}
 <div class="band"></div>${sprays}
 <div class="grain"></div></div>`;
