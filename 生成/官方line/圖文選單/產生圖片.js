@@ -5,6 +5,7 @@ const FONT=process.argv[2]||'LXGW WenKai TC';
 const OUT=process.argv[3]||'/home/user/timo-orders/生成/官方line/圖文選單';
 const SLICE=process.argv[4]!=='no';
 const b64=n=>'data:image/jpeg;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'utf8');
+const png=n=>'data:image/png;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'utf8');
 
 const W=2500,H=1686,CW=833,CH=843,WIDE=1667;
 const WEEKLY={name:'雪花酥',photo:'snow',spec:'850g／包',price:'200元'};
@@ -61,7 +62,7 @@ const SPRIG=(c,c2,g,g2,w)=>`<svg width="${w}" height="${w*0.30}" viewBox="0 0 40
 </svg>`;
 
 /* 細藤蔓：波浪細莖＋交錯小葉，重複鋪滿分線 */
-const S2='%237F9579', SG='%23A3B69C';
+const S2='%237E7859', SG='%23A09A7C';
 const VINE_H=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='38'>`
  +`<path d='M0 19 C22 7 44 7 66 19 C88 31 110 31 132 19' fill='none' stroke='${S2}' stroke-width='3.2' stroke-linecap='round'/>`
  +`<path d='M33 12 C30 4 24 1 16 2 C19 10 26 13 33 12 Z' fill='${SG}'/>`
@@ -81,15 +82,15 @@ const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ink:#4A423C;--line:#9D8E85;--taupe:#857A73;
- --rose:#C98D96;--rose2:#AC6B77;--bandc:#E6CFD1;--sage:#A3B69C;--sage2:#7F9579;--cream:#FDFAF7}
+ --rose:#AD848A;--rose2:#8E6168;--bandc:#CBA67D;--paper:#FCF8EC;--sage:#A09A7C;--sage2:#7E7859;--cream:#FCF8EC}
 html,body{width:${W}px;height:${H}px;overflow:hidden}
 body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .menu{position:relative;width:${W}px;height:${H}px;background:var(--cream)}
 .grain{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:.45;
   background:radial-gradient(130% 95% at 50% 0%,rgba(255,255,255,.7),transparent 60%),
              radial-gradient(120% 90% at 50% 100%,rgba(196,160,152,.12),transparent 56%)}
-.band{position:absolute;z-index:5;pointer-events:none;inset:0;border:34px solid var(--bandc);box-shadow:inset 0 0 0 1.5px rgba(172,107,119,.38)}
-.spray{position:absolute;z-index:6;pointer-events:none}
+.band{position:absolute;z-index:5;pointer-events:none;inset:0;border:62px solid var(--bandc);box-shadow:inset 0 0 0 1px rgba(120,92,62,.22)}
+.spray{position:absolute;z-index:6;pointer-events:none;display:block}
 .cell{position:absolute;overflow:hidden}
 .photo{position:absolute;inset:0}
 .photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.72)}
@@ -98,7 +99,7 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
   align-items:center;justify-content:center;gap:26px}
 .title{font-weight:700;line-height:1.08;white-space:nowrap;
   text-shadow:0 2px 20px rgba(253,250,247,.95),0 0 44px rgba(253,250,247,.92)}
-.eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:var(--rose2)}
+.eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:#8A6A55}
 .div{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;gap:22px}
 .div.v{flex-direction:column}
 .bar{flex:1;opacity:.9}
@@ -129,11 +130,14 @@ const weekly=(x,y,w,h)=>`<div class="cell" style="left:${x}px;top:${y}px;width:$
    <div style="font-size:138px;font-weight:700;letter-spacing:.06em;line-height:1;white-space:nowrap">${WEEKLY.price}</div>
  </div></div>`;
 
-const M=140, PAD=72;
+const M=190, PAD=72;
 const vdiv=(x,y)=>`<div class="div v" style="left:${x-PAD/2}px;top:${y+M}px;width:${PAD}px;height:${CH-M*2}px">
   <span class="bar"></span>${KNOT(...FL,112,true)}<span class="bar"></span></div>`;
-const sprays=[[18,18,0],[W-318,18,90],[W-318,H-318,180],[18,H-318,270]]
-  .map(([l,t,r])=>`<div class="spray" style="left:${l}px;top:${t}px;transform:rotate(${r}deg)">${SPRAY(...FL)}</div>`).join('');
+const CN={tl:png('corner_tl'),tr:png('corner_tr'),bl:png('corner_bl'),br:png('corner_br')};
+const sprays=`<img class="spray" src="${CN.tl}" style="left:0;top:0;width:428px">`
+ +`<img class="spray" src="${CN.tr}" style="right:0;top:0;width:428px">`
+ +`<img class="spray" src="${CN.bl}" style="left:0;bottom:0;width:447px">`
+ +`<img class="spray" src="${CN.br}" style="right:0;bottom:0;width:447px">`;
 
 const html=`<style>${CSS}</style><div class="menu">
 ${weekly(0,0,WIDE,CH)}
