@@ -21,34 +21,35 @@ const LF=(x,y,L,rot,c,op)=>`<path transform="rotate(${rot} ${x} ${y})" opacity="
 /* 漸細捲鬚：沿路徑分段，線寬由粗到細 */
 const CURL=(c,segs)=>segs.map(([d,w])=>
  `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`).join('');
+/* 花朵：n 片花瓣繞中心 */
+const BLOOM=(cx,cy,r,n,c)=>{let p='';
+ for(let k=0;k<n;k++){const a=k*360/n, rad=a*Math.PI/180,
+   x=(cx+Math.cos(rad)*r*0.62).toFixed(1), y=(cy+Math.sin(rad)*r*0.62).toFixed(1);
+   p+=`<ellipse cx="${x}" cy="${y}" rx="${(r*0.52).toFixed(1)}" ry="${(r*0.34).toFixed(1)}" transform="rotate(${a.toFixed(0)} ${x} ${y})"/>`;}
+ return `<g fill="${c}">${p}<circle cx="${cx}" cy="${cy}" r="${(r*0.26).toFixed(1)}" fill="${c}"/></g>`;};
 /* 串珠：由大到小 */
 const BEADS=(pts,c)=>pts.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`).join('');
 
-/* 對稱花藤（左半，右半由呼叫端鏡射）*/
+/* 橫向花枝（左半，右半鏡射）：莖往外平伸，葉順著莖長，末端小捲 */
 const _half=(c)=>`
  ${CURL(c,[
-  ["M200 72 C176 72 153 65 135 52",12],
-  ["M135 52 C121 42 113 29 113 16",8],
-  ["M113 16 C113 6 122 1 130 6 C138 11 135 22 125 21",5],
-  ["M125 21 C119 20 118 14 122 11",3]])}
- ${LF(168,66,58,198,c)}
- ${LF(142,44,50,236,c)}
- ${LF(120,22,38,276,c,.9)}
- ${CURL(c,[
-  ["M184 78 C169 88 158 101 154 116",8],
-  ["M154 116 C152 127 160 134 168 130 C174 127 172 119 165 120",4.5]])}
- ${LF(160,100,42,142,c,.95)}
- ${LF(150,124,32,176,c,.8)}
- ${BEADS([[100,60,6.4],[86,64,4.6],[74,67,3.2],[64,69,2.1]],c)}`;
+  ["M176 72 C150 72 124 68 102 60",10],
+  ["M102 60 C88 55 78 58 76 66",6],
+  ["M76 66 C75 73 83 75 85 69",3.4]])}
+ ${LF(156,72,50,194,c)}
+ ${LF(130,66,44,206,c)}
+ ${LF(146,78,36,158,c,.85)}
+ ${LF(116,58,30,214,c,.8)}
+ ${BLOOM(104,52,15,5,c)}
+ ${BLOOM(66,78,10,5,c)}
+ ${BEADS([[60,66,4.2],[50,68,3],[42,69,2]],c)}`;
 
 /* 標題上方／分線中央共用的對稱花藤 */
 const SPRIG=(c,w)=>KNOT(c,w,false);
 
 const _body=(c)=>`${_half(c)}<g transform="translate(400,0) scale(-1,1)">${_half(c)}</g>
- <path d="M200 44 C208 58 212 66 212 72 C212 79 206 84 200 84 C194 84 188 79 188 72
-   C188 66 192 58 200 44 Z" fill="${c}"/>
- ${LF(200,96,30,76,c,.9)}${LF(200,96,30,104,c,.9)}
- <circle cx="200" cy="112" r="5" fill="${c}"/>`;
+ ${BLOOM(200,72,27,6,c)}
+ ${LF(200,96,26,70,c,.75)}${LF(200,96,26,110,c,.75)}`;
 const KNOT=(c,s,vert)=>vert
  ? `<svg width="${s*0.36}" height="${s}" viewBox="128 -128 144 400">
      <g transform="rotate(90 200 72)">${_body(c)}</g></svg>`
