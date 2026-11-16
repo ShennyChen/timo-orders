@@ -4,11 +4,16 @@ const DIR=__dirname;
 const FONT=process.argv[2]||'LXGW WenKai TC';
 const OUT=process.argv[3]||'/home/user/timo-orders/生成/官方line/圖文選單';
 const SLICE=process.argv[4]!=='no';
-const b64=n=>'data:image/jpeg;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'utf8');
-const png=n=>'data:image/png;base64,'+fs.readFileSync(path.join(DIR,n+'.b64'),'utf8');
+/* 商品照直接讀 raw 的原始檔，角花讀素材資料夾，不再依賴臨時產生的 .b64 */
+const RAW='/home/user/timo-orders/raw/產品照片/';
+const PHOTOS={snow:RAW+'中式糕點/雪花酥-20261116.jpg',
+              gift:RAW+'中式糕點/中秋禮盒-含流蘇外盒.jpg',
+              cake:RAW+'蛋糕/02-鮮奶油-紫玫瑰.jpg'};
+const b64=n=>'data:image/jpeg;base64,'+fs.readFileSync(PHOTOS[n]).toString('base64');
+const png=n=>'data:image/png;base64,'+fs.readFileSync(path.join(DIR,'素材',n+'.b64'),'utf8');
 
 const W=2500,H=1686,CW=833,CH=843,WIDE=1667;
-const WEEKLY={name:'雪花酥',photo:'snow',spec:'850g／包',price:'200元'};
+const WEEKLY={name:'雪花酥',photo:'snow',spec:'170g／包',price:'200元'};
 
 /* ── 鮮花語彙 ───────────────────────────────────────────
    取自沁沁蛋糕上的擠花：奶油白底、粉玫瑰、薄荷綠葉。
