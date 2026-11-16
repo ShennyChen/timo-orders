@@ -62,7 +62,7 @@ const SPRIG=(c,c2,g,g2,w)=>`<svg width="${w}" height="${w*0.30}" viewBox="0 0 40
 </svg>`;
 
 /* 細藤蔓：波浪細莖＋交錯小葉，重複鋪滿分線 */
-const S2='%237E7859', SG='%23A09A7C';
+const S2='%238E4452', SG='%23C2727E';
 const VINE_H=`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='38'>`
  +`<path d='M0 19 C22 7 44 7 66 19 C88 31 110 31 132 19' fill='none' stroke='${S2}' stroke-width='3.2' stroke-linecap='round'/>`
  +`<path d='M33 12 C30 4 24 1 16 2 C19 10 26 13 33 12 Z' fill='${SG}'/>`
@@ -78,18 +78,52 @@ const KNOT=(c,c2,g,g2,s,vert)=>vert
  ? `<svg width="${s*0.52}" height="${s}" viewBox="0 0 104 200">${LEAF(52,80,46,276,g,g2)}${LEAF(52,120,46,84,g,g2)}${ROSE(52,100,30,c,c2)}</svg>`
  : `<svg width="${s}" height="${s*0.52}" viewBox="0 0 200 104">${LEAF(80,52,46,186,g,g2)}${LEAF(120,52,46,-6,g,g2)}${ROSE(100,52,30,c,c2)}</svg>`;
 
+/* ── 海報風格角飾：細線螺旋＋深色尖葉＋粉色框緣 ──────────
+   取自堤默菜單海報。螺旋用阿基米德螺線參數化產生，
+   手工拉貝茲曲線捲不出那種均勻收緊的感覺。              */
+const OL='#6E2F3C', PK='#D9949C', FI='#FFFFFF';
+/* 螺旋：由外向內收緊 */
+const SPIRAL=(cx,cy,r0,r1,turns,a0,dir)=>{
+  const n=Math.max(16,Math.round(turns*26)), p=[];
+  for(let i=0;i<=n;i++){const t=i/n, a=a0+dir*t*turns*2*Math.PI, r=r0+(r1-r0)*t;
+    p.push((cx+Math.cos(a)*r).toFixed(1)+' '+(cy+Math.sin(a)*r).toFixed(1));}
+  return 'M'+p.join(' L');};
+/* 尖刺狀莨苕葉（實心深色）*/
+const SPIKE=(x,y,L,rot,op)=>`<path transform="rotate(${rot} ${x} ${y})" fill="${OL}" opacity="${op||1}"
+ d="M${x} ${y} C${x+L*0.22} ${y-L*0.34},${x+L*0.58} ${y-L*0.50},${x+L} ${y-L*0.44}
+    C${x+L*0.62} ${y-L*0.18},${x+L*0.30} ${y-L*0.04},${x} ${y} Z"/>`;
+const CURLS=(list,w)=>list.map(a=>`<path d="${SPIRAL(...a)}" fill="none" stroke="${OL}"
+  stroke-width="${w}" stroke-linecap="round"/>`).join('');
+
+const PCORNER=()=>`<svg width="430" height="430" viewBox="0 0 300 300">
+ <path d="M4 150 C4 90 40 46 96 30 C150 15 196 4 258 4 L258 30
+   C206 30 160 40 118 56 C74 73 46 108 46 150 Z" fill="${FI}" opacity=".92"/>
+ <path d="M14 162 C14 98 52 52 112 36 C166 22 214 14 276 14" fill="none"
+   stroke="${PK}" stroke-width="17" stroke-linecap="round"/>
+ <path d="M14 162 C14 98 52 52 112 36 C166 22 214 14 276 14" fill="none"
+   stroke="${OL}" stroke-width="2.6" stroke-linecap="round"/>
+ ${CURLS([[78,86,34,5,1.35,-0.5,1],[132,52,24,4,1.25,0.9,-1],[52,140,24,4,1.25,2.3,1],
+          [186,30,17,3,1.1,1.2,-1],[32,196,17,3,1.1,2.8,1],[108,104,15,2.5,1.0,2.0,-1]],6.5)}
+ ${SPIKE(96,60,44,-36)}${SPIKE(60,100,44,40)}
+ ${SPIKE(150,34,34,-20,.9)}${SPIKE(36,152,34,62,.9)}
+ ${SPIKE(112,88,30,-96,.85)}
+ <path d="M70 22 C76 34 76 44 70 54 C64 44 64 34 70 22 Z" fill="${OL}"/>
+ <path d="M22 70 C34 76 44 76 54 70 C44 64 34 64 22 70 Z" fill="${OL}"/>
+ <circle cx="214" cy="22" r="5" fill="${OL}"/><circle cx="22" cy="214" r="5" fill="${OL}"/>
+</svg>`;
+
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=${FONT.replace(/ /g,'+')}:wght@300;400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--ink:#4A423C;--line:#9D8E85;--taupe:#857A73;
- --rose:#AD848A;--rose2:#8E6168;--bandc:#CBA67D;--paper:#FCF8EC;--sage:#A09A7C;--sage2:#7E7859;--cream:#FCF8EC}
+:root{--ink:#3A3230;--line:#9D8E85;--taupe:#857A73;
+ --rose:#C2727E;--rose2:#8E4452;--bandc:#CF8E94;--paper:#FFFFFF;--sage:#B98A90;--sage2:#8E4452;--cream:#FFFFFF}
 html,body{width:${W}px;height:${H}px;overflow:hidden}
 body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var(--cream)}
 .menu{position:relative;width:${W}px;height:${H}px;background:var(--cream)}
 .grain{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:.45;
   background:radial-gradient(130% 95% at 50% 0%,rgba(255,255,255,.7),transparent 60%),
              radial-gradient(120% 90% at 50% 100%,rgba(196,160,152,.12),transparent 56%)}
-.band{position:absolute;z-index:5;pointer-events:none;inset:0;border:62px solid var(--bandc);box-shadow:inset 0 0 0 1px rgba(120,92,62,.22)}
+.band{position:absolute;z-index:5;pointer-events:none;inset:0;border:62px solid var(--bandc);box-shadow:inset 0 0 0 3px #6E2F3C}
 .spray{position:absolute;z-index:6;pointer-events:none;display:block}
 .cell{position:absolute;overflow:hidden}
 .photo{position:absolute;inset:0}
@@ -99,7 +133,7 @@ body{font-family:"${FONT}","Noto Serif TC",serif;color:var(--ink);background:var
   align-items:center;justify-content:center;gap:26px}
 .title{font-weight:700;line-height:1.08;white-space:nowrap;
   text-shadow:0 2px 20px rgba(253,250,247,.95),0 0 44px rgba(253,250,247,.92)}
-.eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:#8A6A55}
+.eyebrow{font-size:88px;font-weight:700;letter-spacing:.22em;text-indent:.22em;color:#8E4452}
 .div{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;gap:22px}
 .div.v{flex-direction:column}
 .bar{flex:1;opacity:.9}
@@ -135,10 +169,11 @@ const M=190, PAD=72;
 const vdiv=(x,y)=>`<div class="div v" style="left:${x-PAD/2}px;top:${y+M}px;width:${PAD}px;height:${CH-M*2}px">
   <span class="bar"></span>${KNOT(...FL,112,true)}<span class="bar"></span></div>`;
 const CN={tl:png('corner_tl'),tr:png('corner_tr'),bl:png('corner_bl'),br:png('corner_br')};
-const sprays=`<img class="spray" src="${CN.tl}" style="left:0;top:0;width:428px">`
- +`<img class="spray" src="${CN.tr}" style="right:0;top:0;width:428px">`
- +`<img class="spray" src="${CN.bl}" style="left:0;bottom:0;width:447px">`
- +`<img class="spray" src="${CN.br}" style="right:0;bottom:0;width:447px">`;
+const CS=400;
+const sprays=`<img class="spray" src="${CN.tl}" style="left:0;top:0;width:${CS}px">`
+ +`<img class="spray" src="${CN.tr}" style="right:0;top:0;width:${CS}px">`
+ +`<img class="spray" src="${CN.bl}" style="left:0;bottom:0;width:${CS}px">`
+ +`<img class="spray" src="${CN.br}" style="right:0;bottom:0;width:${CS}px">`;
 
 const html=`<style>${CSS}</style><div class="menu">
 ${weekly(0,0,WIDE,CH)}
